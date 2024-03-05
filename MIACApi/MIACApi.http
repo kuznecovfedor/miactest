@@ -1,0 +1,6 @@
+@MIACApi_HostAddress = http://localhost:5057
+
+GET {{MIACApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
