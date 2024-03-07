@@ -1,5 +1,7 @@
 
+using MIACApi.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -22,8 +24,12 @@ namespace MIACApi
                     Title = "MIACApi",
                     Description = "test task for miac"
                 });
-                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Web.xml"));
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "MIACApi.xml"));
+
+
             });
+
+            builder.Services.AddDbContext<MIACContext>(options => options.UseNpgsql(""));
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

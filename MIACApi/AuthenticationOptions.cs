@@ -5,7 +5,7 @@ namespace MIACApi
 {
     public class AuthenticationOptions
     {
-        public const string ISSUER = "";
+        public const string ISSUER = "JwtIssuer";
         public const string AUDIENCE = "JwtClient";
         private const string KEY = "yH6IgajaUDlDlaCK";
         public const int LIFTTIME = 10;
