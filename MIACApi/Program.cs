@@ -29,7 +29,9 @@ namespace MIACApi
 
             });
 
-            builder.Services.AddDbContext<MIACContext>(options => options.UseNpgsql(""));
+            builder.Services.AddDbContext<MIACContext>(options => 
+                options.UseNpgsql(builder.Configuration.GetConnectionString("PgDefaultConnection"))
+            );
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
