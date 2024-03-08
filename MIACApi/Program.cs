@@ -25,8 +25,6 @@ namespace MIACApi
                     Description = "test task for miac"
                 });
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "MIACApi.xml"));
-
-
             });
 
             builder.Services.AddDbContext<MIACContext>(options => 

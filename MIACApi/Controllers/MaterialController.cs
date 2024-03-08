@@ -1,4 +1,5 @@
 ﻿using MIACApi.Data;
+using MIACApi.DTO;
 using MIACApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,24 +18,26 @@ namespace MIACApi.Controllers
             _context = context;
         }
 
-        [ProducesResponseType(typeof(IEnumerable<Material>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<MaterialDTO>), (int)HttpStatusCode.OK)]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            List<Material> materialsList =
+            List<MaterialDTO> materialsList =
                 await _context.Materials
                 .AsNoTracking()
+                .Select(m => m.ToDTO())
                 .ToListAsync();
             return StatusCode(200, materialsList);
         }
 
-        [ProducesResponseType(typeof(Material), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.OK)]
         [HttpGet("{idMaterial}")]
         public async Task<IActionResult> GetById(int idMaterial)
         {
-            Material? materialsList =
+            MaterialDTO? materialsList =
                 await _context.Materials
                 .AsNoTracking()
+                .Select(m => m.ToDTO())
                 .FirstOrDefaultAsync(m => m.IdMaterial == idMaterial);
             return materialsList is not null ? StatusCode(200, materialsList) : StatusCode(404, null);
         }
