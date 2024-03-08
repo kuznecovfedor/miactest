@@ -1,4 +1,5 @@
-﻿using MIACApi.Data;
+﻿using AutoMapper;
+using MIACApi.Data;
 using MIACApi.DTO;
 using MIACApi.Models;
 using Microsoft.AspNetCore.Http;
@@ -12,34 +13,42 @@ namespace MIACApi.Controllers
     [ApiController]
     public class MaterialController : ControllerBase
     {
-        private MIACContext _context;
-        public MaterialController(MIACContext context)
+        private readonly MIACContext _context;
+        private readonly IMapper _mapper;
+        public MaterialController(MIACContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
+
 
         [ProducesResponseType(typeof(IEnumerable<MaterialDTO>), (int)HttpStatusCode.OK)]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            List<MaterialDTO> materialsList =
+            List<Material> materialsList =
                 await _context.Materials
                 .AsNoTracking()
-                .Select(m => m.ToDTO())
                 .ToListAsync();
-            return StatusCode(200, materialsList);
+            return StatusCode(200, _mapper.Map<List<MaterialDTO>>(materialsList));
         }
+
 
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.OK)]
         [HttpGet("{idMaterial}")]
-        public async Task<IActionResult> GetById(int idMaterial)
+        public async Task<IActionResult> Get(int idMaterial)
         {
-            MaterialDTO? materialsList =
+            Material? material =
                 await _context.Materials
                 .AsNoTracking()
-                .Select(m => m.ToDTO())
                 .FirstOrDefaultAsync(m => m.IdMaterial == idMaterial);
-            return materialsList is not null ? StatusCode(200, materialsList) : StatusCode(404, null);
+
+            if( material is null )
+            {
+                return StatusCode(404, null);
+            }
+
+            return StatusCode(200, _mapper.Map<MaterialDTO>(material));
         }
     }
 }
