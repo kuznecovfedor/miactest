@@ -5,6 +5,7 @@ using MIACApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 using System.Net;
 
 namespace MIACApi.Controllers
@@ -22,23 +23,21 @@ namespace MIACApi.Controllers
         }
 
 
-        [ProducesResponseType(typeof(IEnumerable<MaterialDTO>), (int)HttpStatusCode.OK)]
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<MaterialDTO>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
             List<Material> materialsList =
                 await _context.Materials
                 .AsNoTracking()
                 .ToListAsync();
-            return StatusCode(
-                (int)HttpStatusCode.OK,
-                _mapper.Map<List<MaterialDTO>>(materialsList)
-                );
+
+            return StatusCode((int)HttpStatusCode.OK, _mapper.Map<List<MaterialDTO>>(materialsList));
         }
 
 
-        [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.OK)]
         [HttpGet("{idMaterial}")]
+        [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get(int idMaterial)
         {
             Material? material =
@@ -46,15 +45,35 @@ namespace MIACApi.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.IdMaterial == idMaterial);
 
-            if( material is null )
+            if (material is null)
             {
-                return NotFound();
+                return StatusCode((int)HttpStatusCode.NotFound); //404
             }
 
-            return StatusCode(
-                (int)HttpStatusCode.OK,
-                _mapper.Map<MaterialDTO>(material)
-                );
+            return StatusCode((int)HttpStatusCode.OK, _mapper.Map<MaterialDTO>(material));
+        }
+
+        
+        [HttpPost]
+        [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.Created)]
+        public async Task<IActionResult> Post([FromBody] MaterialDTO materialDTO)
+        {
+            if (materialDTO is null)
+                return StatusCode((int)HttpStatusCode.BadRequest); //400
+
+            try
+            {
+                Material material = _mapper.Map<Material>(materialDTO);
+
+                await _context.Materials.AddAsync(material);
+                await _context.SaveChangesAsync();
+                return StatusCode((int)HttpStatusCode.Created, _mapper.Map<MaterialDTO>(material)); //201
+            }
+            catch (DbUpdateException ex)
+            {
+                var statusInfo = DBExceptionMatcher.GetByExceptionMessage($"{ex.Message}{ex.InnerException?.Message}");
+                return StatusCode(statusInfo.status, statusInfo.message);
+            }
         }
     }
 }

@@ -9,7 +9,9 @@ namespace MIACApi.Mappers
         public MappingProfiles()
         {
             CreateMap<Material, MaterialDTO>();
+            CreateMap<MaterialDTO, Material>();
             CreateMap<Seller, SellerDTO>();
+            CreateMap<SellerDTO, Seller>();
         }
     }
 }
