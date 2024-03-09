@@ -75,5 +75,66 @@ namespace MIACApi.Controllers
                 return StatusCode(statusInfo.status, statusInfo.message);
             }
         }
+
+
+        [HttpPut]
+        [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.Created)]
+        public async Task<IActionResult> Put([FromBody] MaterialDTO materialDTO)
+        {
+            if (materialDTO is null)
+                return StatusCode((int)HttpStatusCode.BadRequest);
+
+            try
+            {
+                Material? material = await _context.Materials
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.IdMaterial == materialDTO.IdMaterial);
+                if (material is null)
+                {
+                    await _context.AddAsync(_mapper.Map<Material>(materialDTO));
+                }
+                else
+                {
+                    _context.Update(_mapper.Map<Material>(materialDTO));
+                }
+
+                await _context.SaveChangesAsync();
+                return StatusCode((int)HttpStatusCode.Created, _mapper.Map<MaterialDTO>(material));
+            }
+            catch (DbUpdateException ex)
+            {
+                var statusInfo = DBExceptionMatcher.GetByExceptionMessage($"{ex.Message}{ex.InnerException?.Message}");
+                return StatusCode(statusInfo.status, statusInfo.message);
+            }
+        }
+
+
+        [HttpDelete("{idMaterial}")]
+        [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.NoContent)]
+        public async Task<IActionResult> Delete(int idMaterial)
+        {
+            try
+            {
+                Material? material = await _context.Materials
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.IdMaterial == idMaterial);
+
+                if (material is null)
+                {
+                    return StatusCode((int)HttpStatusCode.NotFound);
+                }
+                else
+                {
+                    _context.Remove(material);
+                    await _context.SaveChangesAsync();
+                    return StatusCode((int)HttpStatusCode.NoContent);
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                var statusInfo = DBExceptionMatcher.GetByExceptionMessage($"{ex.Message}{ex.InnerException?.Message}");
+                return StatusCode(statusInfo.status, statusInfo.message);
+            }
+        }
     }
 }
