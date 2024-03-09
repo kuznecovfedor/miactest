@@ -30,7 +30,10 @@ namespace MIACApi.Controllers
                 await _context.Materials
                 .AsNoTracking()
                 .ToListAsync();
-            return StatusCode(200, _mapper.Map<List<MaterialDTO>>(materialsList));
+            return StatusCode(
+                (int)HttpStatusCode.OK,
+                _mapper.Map<List<MaterialDTO>>(materialsList)
+                );
         }
 
 
@@ -45,10 +48,13 @@ namespace MIACApi.Controllers
 
             if( material is null )
             {
-                return StatusCode(404, null);
+                return NotFound();
             }
 
-            return StatusCode(200, _mapper.Map<MaterialDTO>(material));
+            return StatusCode(
+                (int)HttpStatusCode.OK,
+                _mapper.Map<MaterialDTO>(material)
+                );
         }
     }
 }
