@@ -23,8 +23,6 @@ services:
       start_period: 10s
     networks:
       - backend
-    ports:
-      - "60381:5432"
 
   miac_api:
     container_name: miac_api
@@ -38,8 +36,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__PgDefaultConnection=Host=miac_pgdb;Port=5432;Database=miac_test;Username=miac;Password=9zs2SBY4F
-    ports:
-      - "60380:80"
     restart: always
     networks:
       - backend
