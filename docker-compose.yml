@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+
+  miac_api:
+    container_name: miac_api
+    image: miac_api
+    build:
+      network: host
+      context: ./MIACApi/
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "60380:80"
+    restart: always
+    networks:
+      - backend
+      - frontend
+
+networks:
+  backend:
+    external: false
+    driver: bridge
+  frontend:
+    external: true
+    driver: bridge
+    name: services
