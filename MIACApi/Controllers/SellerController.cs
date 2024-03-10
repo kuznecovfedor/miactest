@@ -28,9 +28,14 @@ namespace MIACApi.Controllers
             _mapper = mapper;
         }
 
-
-        [ProducesResponseType(typeof(List<SellerDTO>), (int)HttpStatusCode.OK)]
+        #region GET
+        /// <summary>
+        /// Метод для получения списка продавцов
+        /// </summary>
+        /// <returns>Список продавцов</returns>
+        /// <response code="200">Успех</response>
         [HttpGet]
+        [ProducesResponseType(typeof(List<SellerDTO>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
             List<Seller> sellersList =
@@ -41,9 +46,16 @@ namespace MIACApi.Controllers
             return StatusCode((int)HttpStatusCode.OK, _mapper.Map<List<SellerDTO>>(sellersList));
         }
 
-
-        [ProducesResponseType(typeof(SellerDTO), (int)HttpStatusCode.OK)]
+        /// <summary>
+        /// Метод для получения продавца по его id
+        /// </summary>
+        /// <param name="idSeller">Идентификатор продавца</param>
+        /// <returns>Продавец</returns>
+        /// <response code="200">Успех</response>
+        /// <responce code="404">Продавец не найден</responce>
         [HttpGet("{idSeller}")]
+        [ProducesResponseType(typeof(SellerDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(int idSeller)
         {
             Seller? seller =
@@ -58,8 +70,16 @@ namespace MIACApi.Controllers
 
             return StatusCode((int)HttpStatusCode.OK, _mapper.Map<SellerDTO>(seller));
         }
+        #endregion
 
-
+        #region POST
+        /// <summary>
+        /// Создание (регистрация) продавца
+        /// </summary>
+        /// <param name="registerSellerDTO">Объект регистрации продавца</param>
+        /// <returns>Статус</returns>
+        /// <response code="201">Объект успешно создан</response>
+        /// <response code="400">Некорректные данные</response>
         [HttpPost]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ModifySellerDTO), (int)HttpStatusCode.Created)]
@@ -88,7 +108,14 @@ namespace MIACApi.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Метод авторизации продавца
+        /// </summary>
+        /// <param name="login">логин продавца</param>
+        /// <param name="password">пароль продавца</param>
+        /// <returns>Инфорамция авторизации</returns>
+        /// <response code="200">Успешная авторизация</response>
+        /// <response code="400">Некорректные данные авторизации</response>
         [HttpPost("auth/{login}/{password}")]
         [AllowAnonymous]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -134,8 +161,17 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-
+        #region PUT
+        /// <summary>
+        /// Обновление информации о продавце
+        /// </summary>
+        /// <param name="modifySellerDTO">объект обновление продавца</param>
+        /// <returns>Статус</returns>
+        /// <response code="201">Объект успешно изменен</response>
+        /// <response code="403">Доступ запрещен</response>
+        /// <response code="404">Некорректные данные</response>
         [HttpPut]
         [ProducesResponseType(typeof(SellerDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Put([FromBody] ModifySellerDTO modifySellerDTO)
@@ -148,6 +184,10 @@ namespace MIACApi.Controllers
                 Seller? seller = await _context.Sellers
                     .AsNoTracking()
                     .FirstOrDefaultAsync(m => m.IdSeller == modifySellerDTO.IdSeller);
+
+                //Только текущий авторизированный продавец может обновить себя
+                if (seller.Login != HttpContext.User.Identity!.Name)
+                    return StatusCode((int)HttpStatusCode.Forbidden);
 
                 if (seller is null)
                 {
@@ -171,8 +211,16 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-
+        #region DELETE
+        /// <summary>
+        /// Удаление продавца
+        /// </summary>
+        /// <param name="idMaterial">Идентификатор продавца</param>
+        /// <returns>Статус</returns>
+        /// <response code="204">Объект успешно удален</response>
+        /// <response code="403">Доступ запрещен</response>
         [HttpDelete("{idSeller}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> Delete(int idSeller)
@@ -182,6 +230,10 @@ namespace MIACApi.Controllers
                 Seller? seller = await _context.Sellers
                     .AsNoTracking()
                     .FirstOrDefaultAsync(s => s.IdSeller == idSeller);
+
+                //Только текущий авторизированный продавец может удалить себя
+                if (seller.Login != HttpContext.User.Identity!.Name)
+                    return StatusCode((int)HttpStatusCode.Forbidden);
 
                 if (seller is null)
                 {
@@ -204,6 +256,7 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
         private (Seller seller, ClaimsIdentity claims) GetUserData(string login, string password)
         {

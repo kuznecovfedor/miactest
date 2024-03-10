@@ -24,7 +24,12 @@ namespace MIACApi.Controllers
             _mapper = mapper;
         }
 
-
+        #region GET
+        /// <summary>
+        /// Метод для получения списка материалов
+        /// </summary>
+        /// <returns>Список материалов</returns>
+        /// <response code="200">Успех</response>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<MaterialDTO>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
@@ -49,9 +54,16 @@ namespace MIACApi.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Метод для получения материала по его id
+        /// </summary>
+        /// <param name="idMaterial">Идентификатор материала</param>
+        /// <returns>Материал</returns>
+        /// <response code="200">Успех</response>
+        /// /// <responce code="404">Материал не найден</responce>
         [HttpGet("{idMaterial}")]
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(int idMaterial)
         {
             try
@@ -78,8 +90,17 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-        
+        #region POST
+        /// <summary>
+        /// Создание материала
+        /// </summary>
+        /// <param name="materialDTO">Объект материала</param>
+        /// <returns>Статус</returns>
+        /// <response code="201">Объект успешно создан</response>
+        /// <response code="403">Доступ запрещен</response>
+        /// <response code="404">Некорректные данные</response>
         [HttpPost]
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Post([FromBody] MaterialDTO materialDTO)
@@ -111,8 +132,17 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-
+        #region PUT
+        /// <summary>
+        /// Обновление информации о материале
+        /// </summary>
+        /// <param name="materialDTO">Объект материала</param>
+        /// <returns>Статус</returns>
+        /// <response code="201">Объект успешно обновлен</response>
+        /// <response code="403">Доступ запрещен</response>
+        /// <response code="404">Некорректные данные</response>
         [HttpPut]
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Put([FromBody] MaterialDTO materialDTO)
@@ -154,8 +184,16 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-
+        #region DELETE
+        /// <summary>
+        /// Удаление материала
+        /// </summary>
+        /// <param name="idMaterial">Идентификатор материала</param>
+        /// <returns>Статус</returns>
+        /// <response code="204">Объект успешно удален</response>
+        /// <response code="403">Доступ запрещен</response>
         [HttpDelete("{idMaterial}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> Delete(int idMaterial)
@@ -193,5 +231,6 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
     }
 }
