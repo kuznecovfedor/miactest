@@ -25,6 +25,11 @@ namespace MIACApi.Controllers
         }
 
         #region GET
+        /// <summary>
+        /// Метод для получения списка материалов
+        /// </summary>
+        /// <returns>Список материалов</returns>
+        /// <response code="200">Успех</response>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<MaterialDTO>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
@@ -49,9 +54,16 @@ namespace MIACApi.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Метод для получения материала по его id
+        /// </summary>
+        /// <param name="idMaterial">Идентификатор материала</param>
+        /// <returns>Материал</returns>
+        /// <response code="200">Успех</response>
+        /// /// <responce code="404">Материал не найден</responce>
         [HttpGet("{idMaterial}")]
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(int idMaterial)
         {
             try

@@ -29,6 +29,11 @@ namespace MIACApi.Controllers
         }
 
         #region GET
+        /// <summary>
+        /// Метод для получения списка продавцов
+        /// </summary>
+        /// <returns>Список продавцов</returns>
+        /// <response code="200">Успех</response>
         [HttpGet]
         [ProducesResponseType(typeof(List<SellerDTO>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
@@ -41,9 +46,16 @@ namespace MIACApi.Controllers
             return StatusCode((int)HttpStatusCode.OK, _mapper.Map<List<SellerDTO>>(sellersList));
         }
 
-
+        /// <summary>
+        /// Метод для получения продавца по его id
+        /// </summary>
+        /// <param name="idSeller">Идентификатор продавца</param>
+        /// <returns>Продавец</returns>
+        /// <response code="200">Успех</response>
+        /// <responce code="404">Продавец не найден</responce>
         [HttpGet("{idSeller}")]
         [ProducesResponseType(typeof(SellerDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(int idSeller)
         {
             Seller? seller =
