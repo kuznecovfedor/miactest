@@ -28,9 +28,9 @@ namespace MIACApi.Controllers
             _mapper = mapper;
         }
 
-
-        [ProducesResponseType(typeof(List<SellerDTO>), (int)HttpStatusCode.OK)]
+        #region GET
         [HttpGet]
+        [ProducesResponseType(typeof(List<SellerDTO>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
             List<Seller> sellersList =
@@ -42,8 +42,8 @@ namespace MIACApi.Controllers
         }
 
 
-        [ProducesResponseType(typeof(SellerDTO), (int)HttpStatusCode.OK)]
         [HttpGet("{idSeller}")]
+        [ProducesResponseType(typeof(SellerDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get(int idSeller)
         {
             Seller? seller =
@@ -58,8 +58,9 @@ namespace MIACApi.Controllers
 
             return StatusCode((int)HttpStatusCode.OK, _mapper.Map<SellerDTO>(seller));
         }
+        #endregion
 
-
+        #region Post
         [HttpPost]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ModifySellerDTO), (int)HttpStatusCode.Created)]
@@ -134,8 +135,9 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-
+        #region PUT
         [HttpPut]
         [ProducesResponseType(typeof(SellerDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Put([FromBody] ModifySellerDTO modifySellerDTO)
@@ -168,8 +170,9 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-
+        #region DELETE
         [HttpDelete("{idSeller}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> Delete(int idSeller)
@@ -201,6 +204,7 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
         private (Seller seller, ClaimsIdentity claims) GetUserData(string login, string password)
         {

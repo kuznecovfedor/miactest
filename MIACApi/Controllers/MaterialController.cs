@@ -24,7 +24,7 @@ namespace MIACApi.Controllers
             _mapper = mapper;
         }
 
-
+        #region GET
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<MaterialDTO>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
@@ -78,8 +78,9 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-        
+        #region POST
         [HttpPost]
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Post([FromBody] MaterialDTO materialDTO)
@@ -110,8 +111,9 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-
+        #region PUT
         [HttpPut]
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Put([FromBody] MaterialDTO materialDTO)
@@ -153,8 +155,9 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
 
-
+        #region DELETE
         [HttpDelete("{idMaterial}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> Delete(int idMaterial)
@@ -192,5 +195,6 @@ namespace MIACApi.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+        #endregion
     }
 }
