@@ -14,6 +14,7 @@ namespace MIACApi.Mappers
             CreateMap<SellerDTO, Seller>();
             CreateMap<Seller, ModifySellerDTO>();
             CreateMap<ModifySellerDTO, Seller>();
+            CreateMap<RegisterSellerDTO, Seller>();
         }
     }
 }

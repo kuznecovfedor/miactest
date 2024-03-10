@@ -82,7 +82,7 @@ namespace MIACApi.Controllers
         public async Task<IActionResult> Post([FromBody] MaterialDTO materialDTO)
         {
             if (materialDTO is null)
-                return StatusCode((int)HttpStatusCode.BadRequest); //400
+                return StatusCode((int)HttpStatusCode.BadRequest);
 
             try
             {
@@ -90,7 +90,7 @@ namespace MIACApi.Controllers
 
                 await _context.Materials.AddAsync(material);
                 await _context.SaveChangesAsync();
-                return StatusCode((int)HttpStatusCode.Created, _mapper.Map<MaterialDTO>(material)); //201
+                return StatusCode((int)HttpStatusCode.Created, _mapper.Map<MaterialDTO>(material));
             }
             catch (DbUpdateException ex)
             {

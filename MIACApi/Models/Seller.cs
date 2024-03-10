@@ -15,5 +15,9 @@ public partial class Seller
 
     public DateOnly RegistrationDate { get; set; }
 
+    public string Login { get; set; } = null!;
+
+    public string PasswordHash { get; set; } = null!;
+
     public virtual ICollection<Material> Materials { get; set; } = new List<Material>();
 }

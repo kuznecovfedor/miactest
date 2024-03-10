@@ -20,8 +20,6 @@ public partial class MIACContext : DbContext
 
     public virtual DbSet<Seller> Sellers { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Material>(entity =>
@@ -55,12 +53,20 @@ public partial class MIACContext : DbContext
 
             entity.ToTable("seller");
 
+            entity.HasIndex(e => e.Login, "uq_login").IsUnique();
+
             entity.Property(e => e.IdSeller)
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("id_seller");
+            entity.Property(e => e.Login)
+                .HasMaxLength(30)
+                .HasColumnName("login");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(60)
+                .HasColumnName("password_hash");
             entity.Property(e => e.Patronymic)
                 .HasMaxLength(100)
                 .HasColumnName("patronymic");
@@ -70,20 +76,6 @@ public partial class MIACContext : DbContext
             entity.Property(e => e.Surname)
                 .HasMaxLength(100)
                 .HasColumnName("surname");
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Login).HasName("user_pkey");
-
-            entity.ToTable("user");
-
-            entity.Property(e => e.Login)
-                .HasMaxLength(30)
-                .HasColumnName("login");
-            entity.Property(e => e.PasswordHash)
-                .HasMaxLength(60)
-                .HasColumnName("password_hash");
         });
 
         OnModelCreatingPartial(modelBuilder);

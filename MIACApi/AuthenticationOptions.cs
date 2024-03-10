@@ -7,7 +7,7 @@ namespace MIACApi
     {
         public const string ISSUER = "JwtIssuer";
         public const string AUDIENCE = "JwtClient";
-        private const string KEY = "yH6IgajaUDlDlaCK";
+        public const string KEY = "yH6IgajasqweqweqweyH6IgajasqweqweqweyH6Igajasqweqweqwe";
         public const int LIFTTIME = 10;
         public static SymmetricSecurityKey GetSymmetricSecurityKey()
         {
