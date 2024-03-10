@@ -11,6 +11,7 @@
                 string a when a.Contains("unique constraint") => (400, "Нарушение ограничения уникальности"),
                 string a when a.Contains("delete or update a parent row") => (400, "Удаление связанной записи"),
                 string a when a.Contains("check constraint") => (400, "Некорректные данные"),
+                string a when a.Contains("Failed to connect") => (500, "Сервер недоступен"),
                 _ => (500, null)
             };
         }

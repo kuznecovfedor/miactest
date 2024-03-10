@@ -2,10 +2,8 @@
 using MIACApi.Data;
 using MIACApi.DTO;
 using MIACApi.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
 using System.Net;
 
 namespace MIACApi.Controllers
@@ -27,12 +25,24 @@ namespace MIACApi.Controllers
         [ProducesResponseType(typeof(IEnumerable<MaterialDTO>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            List<Material> materialsList =
+            try
+            {
+                List<Material> materialsList =
                 await _context.Materials
                 .AsNoTracking()
                 .ToListAsync();
 
-            return StatusCode((int)HttpStatusCode.OK, _mapper.Map<List<MaterialDTO>>(materialsList));
+                return StatusCode((int)HttpStatusCode.OK, _mapper.Map<List<MaterialDTO>>(materialsList));
+            }
+            catch (InvalidOperationException ex)
+            {
+                var statusInfo = DBExceptionMatcher.GetByExceptionMessage($"{ex.Message}{ex.InnerException?.Message}");
+                return StatusCode(statusInfo.status, statusInfo.message);
+            }
+            catch
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
 
@@ -40,17 +50,29 @@ namespace MIACApi.Controllers
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get(int idMaterial)
         {
-            Material? material =
+            try
+            {
+                Material? material =
                 await _context.Materials
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.IdMaterial == idMaterial);
 
-            if (material is null)
-            {
-                return StatusCode((int)HttpStatusCode.NotFound); //404
-            }
+                if (material is null)
+                {
+                    return StatusCode((int)HttpStatusCode.NotFound); //404
+                }
 
-            return StatusCode((int)HttpStatusCode.OK, _mapper.Map<MaterialDTO>(material));
+                return StatusCode((int)HttpStatusCode.OK, _mapper.Map<MaterialDTO>(material));
+            }
+            catch (InvalidOperationException ex)
+            {
+                var statusInfo = DBExceptionMatcher.GetByExceptionMessage($"{ex.Message}{ex.InnerException?.Message}");
+                return StatusCode(statusInfo.status, statusInfo.message);
+            }
+            catch
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
         
@@ -74,6 +96,10 @@ namespace MIACApi.Controllers
                 var statusInfo = DBExceptionMatcher.GetByExceptionMessage($"{ex.Message}{ex.InnerException?.Message}");
                 return StatusCode(statusInfo.status, statusInfo.message);
             }
+            catch
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
 
@@ -89,6 +115,7 @@ namespace MIACApi.Controllers
                 Material? material = await _context.Materials
                     .AsNoTracking()
                     .FirstOrDefaultAsync(m => m.IdMaterial == materialDTO.IdMaterial);
+                
                 if (material is null)
                 {
                     await _context.AddAsync(_mapper.Map<Material>(materialDTO));
@@ -106,11 +133,15 @@ namespace MIACApi.Controllers
                 var statusInfo = DBExceptionMatcher.GetByExceptionMessage($"{ex.Message}{ex.InnerException?.Message}");
                 return StatusCode(statusInfo.status, statusInfo.message);
             }
+            catch
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
 
         [HttpDelete("{idMaterial}")]
-        [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> Delete(int idMaterial)
         {
             try
@@ -134,6 +165,10 @@ namespace MIACApi.Controllers
             {
                 var statusInfo = DBExceptionMatcher.GetByExceptionMessage($"{ex.Message}{ex.InnerException?.Message}");
                 return StatusCode(statusInfo.status, statusInfo.message);
+            }
+            catch
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
     }
