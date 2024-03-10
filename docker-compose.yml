@@ -1,9 +1,34 @@
 version: '3.9'
 
 services:
+  miac_pgdb:
+    image: postgres:14
+    container_name: miac_pgdb
+    hostname: miac_pgdb
+    restart: unless-stopped
+    shm_size: 512mb
+    volumes:
+    - ./db/data:/var/lib/postgresql/data
+    - ./db/init:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_DB=miac_test
+      - POSTGRES_USER=miac
+      - POSTGRES_PASSWORD=9zs2SBY4F
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U miac -d miac_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend
+    ports:
+      - "60381:5432"
 
   miac_api:
     container_name: miac_api
+    hostname: miacapi
     image: miac_api
     build:
       network: host
@@ -12,6 +37,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__PgDefaultConnection=Host=miac_pgdb;Port=5432;Database=miac_test;Username=miac;Password=9zs2SBY4F
     ports:
       - "60380:80"
     restart: always
