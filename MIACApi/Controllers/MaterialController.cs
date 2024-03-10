@@ -93,12 +93,21 @@ namespace MIACApi.Controllers
         #endregion
 
         #region POST
+        /// <summary>
+        /// Создание материала
+        /// </summary>
+        /// <param name="materialDTO">Объект материала</param>
+        /// <returns>Статус</returns>
+        /// <response code="201">Объект успешно создан</response>
+        /// <response code="403">Доступ запрещен</response>
+        /// <response code="404">Некорректные данные</response>
         [HttpPost]
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Post([FromBody] MaterialDTO materialDTO)
         {
             if (materialDTO is null)
                 return StatusCode((int)HttpStatusCode.BadRequest);
+
             try
             {
                 Seller? current = await _context.Sellers
@@ -126,6 +135,14 @@ namespace MIACApi.Controllers
         #endregion
 
         #region PUT
+        /// <summary>
+        /// Обновление информации о материале
+        /// </summary>
+        /// <param name="materialDTO">Объект материала</param>
+        /// <returns>Статус</returns>
+        /// <response code="201">Объект успешно обновлен</response>
+        /// <response code="403">Доступ запрещен</response>
+        /// <response code="404">Некорректные данные</response>
         [HttpPut]
         [ProducesResponseType(typeof(MaterialDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Put([FromBody] MaterialDTO materialDTO)
@@ -170,6 +187,13 @@ namespace MIACApi.Controllers
         #endregion
 
         #region DELETE
+        /// <summary>
+        /// Удаление материала
+        /// </summary>
+        /// <param name="idMaterial">Идентификатор материала</param>
+        /// <returns>Статус</returns>
+        /// <response code="204">Объект успешно удален</response>
+        /// <response code="403">Доступ запрещен</response>
         [HttpDelete("{idMaterial}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> Delete(int idMaterial)
