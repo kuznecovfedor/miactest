@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using AutoMapper;
+using System.Net;
+using System.Text;
 
 namespace MIACApi
 {
@@ -18,16 +20,6 @@ namespace MIACApi
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Version = "v1",
-                    Title = "MIACApi",
-                    Description = "test task for miac"
-                });
-                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "MIACApi.xml"));
-            });
 
             builder.Services.AddDbContext<MIACContext>(options => 
                 options.UseNpgsql(builder.Configuration.GetConnectionString("PgDefaultConnection"))
@@ -39,14 +31,51 @@ namespace MIACApi
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = AuthenticationOptions.ISSUER,
                         ValidateAudience = true,
-                        ValidAudience = AuthenticationOptions.AUDIENCE,
                         ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = AuthenticationOptions.ISSUER,
+                        ValidAudience = AuthenticationOptions.AUDIENCE,
                         IssuerSigningKey = AuthenticationOptions.GetSymmetricSecurityKey(),
-                        ValidateIssuerSigningKey = true
                     };
                 });
+
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "MIACApi",
+                    Description = "test task for miac"
+                });
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "MIACApi.xml"));
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT"
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                      new OpenApiSecurityScheme
+                      {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        },
+                        Scheme = "oauth2",
+                        Name = "Bearer",
+                        In = ParameterLocation.Header
+                      },
+                      new List<string>()
+                    }
+                });
+            });
 
             var app = builder.Build();
 

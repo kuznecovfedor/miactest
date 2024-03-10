@@ -2,18 +2,21 @@
 using MIACApi.Data;
 using MIACApi.DTO;
 using MIACApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
 
 namespace MIACApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class SellerController : ControllerBase
     {
         private readonly MIACContext _context;
@@ -48,7 +51,7 @@ namespace MIACApi.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.IdSeller == idSeller);
 
-            if( seller is null)
+            if (seller is null)
             {
                 return NotFound();
             }
@@ -58,6 +61,7 @@ namespace MIACApi.Controllers
 
 
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ModifySellerDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Post([FromBody] RegisterSellerDTO registerSellerDTO)
         {
@@ -68,7 +72,7 @@ namespace MIACApi.Controllers
             {
                 Seller seller = _mapper.Map<Seller>(registerSellerDTO);
                 seller.PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerSellerDTO.Password);
-                
+
                 await _context.Sellers.AddAsync(seller);
                 await _context.SaveChangesAsync();
                 return StatusCode((int)HttpStatusCode.Created, _mapper.Map<SellerDTO>(seller));
@@ -87,17 +91,20 @@ namespace MIACApi.Controllers
 
         [HttpPost("auth/{login}/{password}")]
         [AllowAnonymous]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         public async Task<IActionResult> Authorization(string login, string password)
         {
             Seller seller;
+            ClaimsIdentity identity;
             try
             {
-                seller = GetUserData(login, password);
+                (seller, identity) = GetUserData(login, password);
 
                 DateTime now = DateTime.UtcNow;
                 JwtSecurityToken jwt = new JwtSecurityToken(
                     issuer: AuthenticationOptions.ISSUER,
                     audience: AuthenticationOptions.AUDIENCE,
+                    claims: identity.Claims,
                     notBefore: now,
                     expires: now.Add(TimeSpan.FromMinutes(AuthenticationOptions.LIFTTIME)),
                     signingCredentials: new SigningCredentials(
@@ -195,7 +202,7 @@ namespace MIACApi.Controllers
             }
         }
 
-        private Seller GetUserData(string login, string password)
+        private (Seller seller, ClaimsIdentity claims) GetUserData(string login, string password)
         {
             Seller? seller = _context.Sellers
                 .AsNoTracking()
@@ -209,7 +216,13 @@ namespace MIACApi.Controllers
             if (!isPasswordValid)
                 throw new ArgumentException("password invalid");
 
-            return seller;
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, seller.Login)
+            };
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Authorization", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+            return (seller, claimsIdentity);
         }
     }
 }

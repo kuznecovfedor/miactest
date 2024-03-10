@@ -2,6 +2,8 @@
 using MIACApi.Data;
 using MIACApi.DTO;
 using MIACApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -10,6 +12,7 @@ namespace MIACApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class MaterialController : ControllerBase
     {
         private readonly MIACContext _context;
@@ -83,9 +86,14 @@ namespace MIACApi.Controllers
         {
             if (materialDTO is null)
                 return StatusCode((int)HttpStatusCode.BadRequest);
-
             try
             {
+                Seller? current = await _context.Sellers
+                    .FirstOrDefaultAsync(s => s.Login == HttpContext.User.Identity!.Name);
+
+                if(current.IdSeller != materialDTO.IdSeller)
+                    return StatusCode((int)HttpStatusCode.Forbidden);
+
                 Material material = _mapper.Map<Material>(materialDTO);
 
                 await _context.Materials.AddAsync(material);
@@ -113,6 +121,12 @@ namespace MIACApi.Controllers
 
             try
             {
+                Seller? current = await _context.Sellers
+                    .FirstOrDefaultAsync(s => s.Login == HttpContext.User.Identity!.Name);
+
+                if (current.IdSeller != materialDTO.IdSeller)
+                    return StatusCode((int)HttpStatusCode.Forbidden);
+
                 Material? material = await _context.Materials
                     .AsNoTracking()
                     .FirstOrDefaultAsync(m => m.IdMaterial == materialDTO.IdMaterial);
@@ -157,6 +171,12 @@ namespace MIACApi.Controllers
                 }
                 else
                 {
+                    Seller? current = await _context.Sellers
+                    .FirstOrDefaultAsync(s => s.Login == HttpContext.User.Identity!.Name);
+
+                    if (current.IdSeller != material.IdSeller)
+                        return StatusCode((int)HttpStatusCode.Forbidden);
+
                     _context.Remove(material);
                     await _context.SaveChangesAsync();
                     return StatusCode((int)HttpStatusCode.NoContent);
