@@ -86,6 +86,7 @@ namespace MIACApi.Controllers
         {
             if (materialDTO is null)
                 return StatusCode((int)HttpStatusCode.BadRequest);
+
             try
             {
                 Seller? current = await _context.Sellers

@@ -140,6 +140,9 @@ namespace MIACApi.Controllers
         [ProducesResponseType(typeof(SellerDTO), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Put([FromBody] ModifySellerDTO modifySellerDTO)
         {
+            if (modifySellerDTO is null)
+                return StatusCode((int)HttpStatusCode.BadRequest);
+
             try
             {
                 Seller? seller = await _context.Sellers
